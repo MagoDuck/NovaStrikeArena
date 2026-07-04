@@ -254,9 +254,9 @@ Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalh
 
 ## 📧 Contato
 
-- **Desenvolvedor**: Seu Nome
-- **Email**: seu.email@exemplo.com
-- **GitHub**: [seu-usuario](https://github.com/seu-usuario)
+- **Desenvolvedor**: João Gabriel
+- **Email**: joaogabrielcoelho1000@gmai.com
+- **GitHub**: [João Gabriel](https://github.com/magoduck)
 
 ---
 
