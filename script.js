@@ -12,6 +12,435 @@ window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
 // ============================================================
+//  SISTEMA DE ÁUDIO - SONS SINTÉTICOS
+// ============================================================
+class SoundSystem {
+    constructor() {
+        this.ctx = null;
+        this.enabled = true;
+        this.initialized = false;
+        this.volume = 0.25;
+        this.soundsEnabled = true;
+    }
+
+    init() {
+        if (this.initialized) return;
+        try {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            this.initialized = true;
+            console.log('🎵 Sistema de áudio inicializado');
+        } catch (e) {
+            console.warn('Web Audio API não suportada');
+            this.enabled = false;
+        }
+    }
+
+    toggleSounds() {
+        this.soundsEnabled = !this.soundsEnabled;
+        return this.soundsEnabled;
+    }
+
+    playShoot() {
+        if (!this.enabled || !this.initialized || !this.soundsEnabled) return;
+        try {
+            const oscillator = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            oscillator.connect(gain);
+            gain.connect(this.ctx.destination);
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(800, this.ctx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(200, this.ctx.currentTime + 0.06);
+            gain.gain.setValueAtTime(this.volume * 0.25, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.06);
+            oscillator.start(this.ctx.currentTime);
+            oscillator.stop(this.ctx.currentTime + 0.06);
+        } catch (e) { /* ignora */ }
+    }
+
+    playExplosion() {
+        if (!this.enabled || !this.initialized || !this.soundsEnabled) return;
+        try {
+            const bufferSize = this.ctx.sampleRate * 0.3;
+            const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.3));
+            }
+            const noise = this.ctx.createBufferSource();
+            noise.buffer = buffer;
+            const gain = this.ctx.createGain();
+            const filter = this.ctx.createBiquadFilter();
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(this.ctx.destination);
+            filter.type = 'lowpass';
+            filter.frequency.value = 800;
+            filter.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.3);
+            gain.gain.setValueAtTime(this.volume * 0.5, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.3);
+            noise.start(this.ctx.currentTime);
+            noise.stop(this.ctx.currentTime + 0.3);
+        } catch (e) { /* ignora */ }
+    }
+
+    playHit() {
+        if (!this.enabled || !this.initialized || !this.soundsEnabled) return;
+        try {
+            const oscillator = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            oscillator.connect(gain);
+            gain.connect(this.ctx.destination);
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(1200, this.ctx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(600, this.ctx.currentTime + 0.04);
+            gain.gain.setValueAtTime(this.volume * 0.2, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
+            oscillator.start(this.ctx.currentTime);
+            oscillator.stop(this.ctx.currentTime + 0.04);
+        } catch (e) { /* ignora */ }
+    }
+
+    playDamage() {
+        if (!this.enabled || !this.initialized || !this.soundsEnabled) return;
+        try {
+            const oscillator = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            oscillator.connect(gain);
+            gain.connect(this.ctx.destination);
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(150, this.ctx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(50, this.ctx.currentTime + 0.2);
+            gain.gain.setValueAtTime(this.volume * 0.35, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.2);
+            oscillator.start(this.ctx.currentTime);
+            oscillator.stop(this.ctx.currentTime + 0.2);
+        } catch (e) { /* ignora */ }
+    }
+
+    playPowerUp() {
+        if (!this.enabled || !this.initialized || !this.soundsEnabled) return;
+        try {
+            const notes = [523, 659, 784];
+            notes.forEach((freq, i) => {
+                const oscillator = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                oscillator.connect(gain);
+                gain.connect(this.ctx.destination);
+                oscillator.type = 'sine';
+                oscillator.frequency.value = freq;
+                const startTime = this.ctx.currentTime + i * 0.08;
+                gain.gain.setValueAtTime(this.volume * 0.2, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.08);
+                oscillator.start(startTime);
+                oscillator.stop(startTime + 0.08);
+            });
+        } catch (e) { /* ignora */ }
+    }
+
+    playWaveComplete() {
+        if (!this.enabled || !this.initialized || !this.soundsEnabled) return;
+        try {
+            const notes = [523, 659, 784, 1047];
+            notes.forEach((freq, i) => {
+                const oscillator = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                oscillator.connect(gain);
+                gain.connect(this.ctx.destination);
+                oscillator.type = 'sine';
+                oscillator.frequency.value = freq;
+                const startTime = this.ctx.currentTime + i * 0.1;
+                gain.gain.setValueAtTime(this.volume * 0.2, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.1);
+                oscillator.start(startTime);
+                oscillator.stop(startTime + 0.1);
+            });
+        } catch (e) { /* ignora */ }
+    }
+
+    playGameOver() {
+        if (!this.enabled || !this.initialized || !this.soundsEnabled) return;
+        try {
+            const notes = [440, 349, 294, 220];
+            notes.forEach((freq, i) => {
+                const oscillator = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                oscillator.connect(gain);
+                gain.connect(this.ctx.destination);
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.value = freq;
+                const startTime = this.ctx.currentTime + i * 0.2;
+                gain.gain.setValueAtTime(this.volume * 0.3, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.2);
+                oscillator.start(startTime);
+                oscillator.stop(startTime + 0.2);
+            });
+        } catch (e) { /* ignora */ }
+    }
+
+    playCoin() {
+        if (!this.enabled || !this.initialized || !this.soundsEnabled) return;
+        try {
+            const oscillator = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            oscillator.connect(gain);
+            gain.connect(this.ctx.destination);
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(1200, this.ctx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(1800, this.ctx.currentTime + 0.05);
+            gain.gain.setValueAtTime(this.volume * 0.15, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+            oscillator.start(this.ctx.currentTime);
+            oscillator.stop(this.ctx.currentTime + 0.05);
+        } catch (e) { /* ignora */ }
+    }
+
+    playTeleport() {
+        if (!this.enabled || !this.initialized || !this.soundsEnabled) return;
+        try {
+            const oscillator = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            oscillator.connect(gain);
+            gain.connect(this.ctx.destination);
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(300, this.ctx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.2);
+            gain.gain.setValueAtTime(this.volume * 0.3, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.2);
+            oscillator.start(this.ctx.currentTime);
+            oscillator.stop(this.ctx.currentTime + 0.2);
+        } catch (e) { /* ignora */ }
+    }
+
+    playLaser() {
+        if (!this.enabled || !this.initialized || !this.soundsEnabled) return;
+        try {
+            const oscillator = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            oscillator.connect(gain);
+            gain.connect(this.ctx.destination);
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(200, this.ctx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.15);
+            gain.gain.setValueAtTime(this.volume * 0.2, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.15);
+            oscillator.start(this.ctx.currentTime);
+            oscillator.stop(this.ctx.currentTime + 0.15);
+        } catch (e) { /* ignora */ }
+    }
+
+    playShield() {
+        if (!this.enabled || !this.initialized || !this.soundsEnabled) return;
+        try {
+            const oscillator = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            oscillator.connect(gain);
+            gain.connect(this.ctx.destination);
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(600, this.ctx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.1);
+            gain.gain.setValueAtTime(this.volume * 0.25, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
+            oscillator.start(this.ctx.currentTime);
+            oscillator.stop(this.ctx.currentTime + 0.1);
+        } catch (e) { /* ignora */ }
+    }
+
+    playSpeedBoost() {
+        if (!this.enabled || !this.initialized || !this.soundsEnabled) return;
+        try {
+            const oscillator = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            oscillator.connect(gain);
+            gain.connect(this.ctx.destination);
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(400, this.ctx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(600, this.ctx.currentTime + 0.15);
+            gain.gain.setValueAtTime(this.volume * 0.2, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.15);
+            oscillator.start(this.ctx.currentTime);
+            oscillator.stop(this.ctx.currentTime + 0.15);
+        } catch (e) { /* ignora */ }
+    }
+
+    playGravity() {
+        if (!this.enabled || !this.initialized || !this.soundsEnabled) return;
+        try {
+            const oscillator = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            oscillator.connect(gain);
+            gain.connect(this.ctx.destination);
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(100, this.ctx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(200, this.ctx.currentTime + 0.3);
+            gain.gain.setValueAtTime(this.volume * 0.3, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.3);
+            oscillator.start(this.ctx.currentTime);
+            oscillator.stop(this.ctx.currentTime + 0.3);
+        } catch (e) { /* ignora */ }
+    }
+
+    playClone() {
+        if (!this.enabled || !this.initialized || !this.soundsEnabled) return;
+        try {
+            const notes = [523, 523, 659, 659];
+            notes.forEach((freq, i) => {
+                const oscillator = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                oscillator.connect(gain);
+                gain.connect(this.ctx.destination);
+                oscillator.type = 'sine';
+                oscillator.frequency.value = freq;
+                const startTime = this.ctx.currentTime + i * 0.1;
+                gain.gain.setValueAtTime(this.volume * 0.15, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.1);
+                oscillator.start(startTime);
+                oscillator.stop(startTime + 0.1);
+            });
+        } catch (e) { /* ignora */ }
+    }
+
+    playBerserk() {
+        if (!this.enabled || !this.initialized || !this.soundsEnabled) return;
+        try {
+            const oscillator = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            oscillator.connect(gain);
+            gain.connect(this.ctx.destination);
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(80, this.ctx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(200, this.ctx.currentTime + 0.2);
+            gain.gain.setValueAtTime(this.volume * 0.3, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.2);
+            oscillator.start(this.ctx.currentTime);
+            oscillator.stop(this.ctx.currentTime + 0.2);
+        } catch (e) { /* ignora */ }
+    }
+
+    playSlow() {
+        if (!this.enabled || !this.initialized || !this.soundsEnabled) return;
+        try {
+            const oscillator = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            oscillator.connect(gain);
+            gain.connect(this.ctx.destination);
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(200, this.ctx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.2);
+            gain.gain.setValueAtTime(this.volume * 0.2, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.2);
+            oscillator.start(this.ctx.currentTime);
+            oscillator.stop(this.ctx.currentTime + 0.2);
+        } catch (e) { /* ignora */ }
+    }
+
+    playScatter() {
+        if (!this.enabled || !this.initialized || !this.soundsEnabled) return;
+        try {
+            for (let i = 0; i < 5; i++) {
+                const oscillator = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                oscillator.connect(gain);
+                gain.connect(this.ctx.destination);
+                oscillator.type = 'square';
+                oscillator.frequency.value = 600 + Math.random() * 400;
+                const startTime = this.ctx.currentTime + i * 0.03;
+                gain.gain.setValueAtTime(this.volume * 0.1, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.03);
+                oscillator.start(startTime);
+                oscillator.stop(startTime + 0.03);
+            }
+        } catch (e) { /* ignora */ }
+    }
+
+    playMine() {
+        if (!this.enabled || !this.initialized || !this.soundsEnabled) return;
+        try {
+            const oscillator = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            oscillator.connect(gain);
+            gain.connect(this.ctx.destination);
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(500, this.ctx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.15);
+            gain.gain.setValueAtTime(this.volume * 0.2, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.15);
+            oscillator.start(this.ctx.currentTime);
+            oscillator.stop(this.ctx.currentTime + 0.15);
+        } catch (e) { /* ignora */ }
+    }
+
+    playHoming() {
+        if (!this.enabled || !this.initialized || !this.soundsEnabled) return;
+        try {
+            for (let i = 0; i < 3; i++) {
+                const oscillator = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                oscillator.connect(gain);
+                gain.connect(this.ctx.destination);
+                oscillator.type = 'sine';
+                oscillator.frequency.value = 800 + i * 200;
+                const startTime = this.ctx.currentTime + i * 0.1;
+                gain.gain.setValueAtTime(this.volume * 0.15, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.1);
+                oscillator.start(startTime);
+                oscillator.stop(startTime + 0.1);
+            }
+        } catch (e) { /* ignora */ }
+    }
+
+    playReflect() {
+        if (!this.enabled || !this.initialized || !this.soundsEnabled) return;
+        try {
+            const oscillator = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            oscillator.connect(gain);
+            gain.connect(this.ctx.destination);
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(900, this.ctx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(300, this.ctx.currentTime + 0.1);
+            gain.gain.setValueAtTime(this.volume * 0.2, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
+            oscillator.start(this.ctx.currentTime);
+            oscillator.stop(this.ctx.currentTime + 0.1);
+        } catch (e) { /* ignora */ }
+    }
+
+    playHeal() {
+        if (!this.enabled || !this.initialized || !this.soundsEnabled) return;
+        try {
+            const notes = [523, 659, 784, 1047];
+            notes.forEach((freq, i) => {
+                const oscillator = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                oscillator.connect(gain);
+                gain.connect(this.ctx.destination);
+                oscillator.type = 'sine';
+                oscillator.frequency.value = freq;
+                const startTime = this.ctx.currentTime + i * 0.06;
+                gain.gain.setValueAtTime(this.volume * 0.15, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.06);
+                oscillator.start(startTime);
+                oscillator.stop(startTime + 0.06);
+            });
+        } catch (e) { /* ignora */ }
+    }
+}
+
+// ============================================================
+//  INICIALIZAÇÃO DO SISTEMA DE ÁUDIO
+// ============================================================
+const sound = new SoundSystem();
+
+// Inicializa o áudio no primeiro clique/interação do usuário
+document.addEventListener('click', () => {
+    sound.init();
+}, { once: true });
+
+document.addEventListener('keydown', () => {
+    if (!sound.initialized) sound.init();
+}, { once: true });
+
+// ============================================================
 //  TECLADO + GAMEPAD (PS3) - CORRIGIDO PARA DIAGONAIS
 // ============================================================
 const keys = {};
@@ -324,6 +753,7 @@ function renderPowersGrid() {
                 if (!ownedPowers.includes(id)) {
                     ownedPowers.push(id);
                 }
+                sound.playCoin();
                 updateCoinsDisplay();
                 saveProgress();
                 renderPowersGrid();
@@ -647,6 +1077,7 @@ function resetPowers() {
 }
 
 function createDeathExplosion(x, y, color) {
+    sound.playHit();
     const particles = [];
     const count = 40;
     for (let i = 0; i < count; i++) {
@@ -743,7 +1174,7 @@ function startGame(continueGame = true) {
 }
 
 // ============================================================
-//  PODERES
+//  PODERES (COM SONS)
 // ============================================================
 function ativarPower(index) {
     if (gameOver || menuActive) return;
@@ -756,6 +1187,8 @@ function ativarPower(index) {
     if (powerCooldowns[powerId] && powerCooldowns[powerId] > 0) {
         return;
     }
+
+    sound.playPowerUp();
 
     switch(powerId) {
         case 'explosion': ativarExplosao(); break;
@@ -783,6 +1216,9 @@ function ativarPower(index) {
 function ativarExplosao() {
     if (gameOver || menuActive) return;
     if (enemies.length === 0) return;
+    
+    sound.playExplosion();
+    
     const raioExplosao = 250;
     const centroX = player.x, centroY = player.y;
 
@@ -856,6 +1292,7 @@ function ativarExplosao() {
         savedWave = wave;
         document.getElementById('waveText').innerText = `ONDA: ${wave}`; 
         spawnWave(); 
+        sound.playWaveComplete();
     }
 }
 
@@ -865,15 +1302,18 @@ function ativarCongelamento() {
     freezeActive = true;
     freezeTimer = Date.now() + FREEZE_DURATION;
     enemies.forEach(enemy => enemy.frozen = true);
+    sound.playSlow();
 }
 
 function ativarTeleporte() {
     if (gameOver || menuActive) return;
+    sound.playTeleport();
     teleportActive = true;
 }
 
 function ativarEscudo() {
     if (shieldActive) return;
+    sound.playShield();
     shieldActive = true;
     shieldTimer = Date.now() + 5000;
     for (let i = 0; i < 30; i++) {
@@ -892,6 +1332,7 @@ function ativarEscudo() {
 }
 
 function ativarCura() {
+    sound.playHeal();
     const healAmount = 2;
     player.health = Math.min(player.health + healAmount, player.maxHealth);
     updateHealthUI();
@@ -912,6 +1353,7 @@ function ativarCura() {
 
 function ativarSpeedBoost() {
     if (speedBoostActive) return;
+    sound.playSpeedBoost();
     speedBoostActive = true;
     speedBoostTimer = Date.now() + 3000;
     player.speed *= 1.8;
@@ -931,6 +1373,7 @@ function ativarSpeedBoost() {
 }
 
 function ativarLaser() {
+    sound.playLaser();
     const laserDamage = 20;
     const laserRange = 600;
 
@@ -974,6 +1417,7 @@ function ativarLaser() {
 }
 
 function ativarMina() {
+    sound.playMine();
     mines.push({
         x: player.x,
         y: player.y,
@@ -997,6 +1441,7 @@ function ativarMina() {
 }
 
 function ativarHoming() {
+    sound.playHoming();
     for (let i = 0; i < 3; i++) {
         const angle = player.angle + (i - 1) * 0.3;
         const speed = 8;
@@ -1029,6 +1474,7 @@ function ativarHoming() {
 
 function ativarReflect() {
     if (reflectActive) return;
+    sound.playReflect();
     reflectActive = true;
     reflectTimer = Date.now() + 3000;
     for (let i = 0; i < 25; i++) {
@@ -1048,6 +1494,7 @@ function ativarReflect() {
 
 function ativarGravity() {
     if (gravityActive) return;
+    sound.playGravity();
     gravityActive = true;
     gravityTimer = Date.now() + 4000;
     for (let i = 0; i < 30; i++) {
@@ -1067,6 +1514,7 @@ function ativarGravity() {
 
 function ativarClone() {
     if (cloneActive) return;
+    sound.playClone();
     cloneActive = true;
     cloneTimer = Date.now() + 5000;
     cloneBullets = [];
@@ -1087,6 +1535,7 @@ function ativarClone() {
 
 function ativarBerserk() {
     if (berserkActive) return;
+    sound.playBerserk();
     berserkActive = true;
     berserkTimer = Date.now() + 4000;
     for (let i = 0; i < 25; i++) {
@@ -1106,6 +1555,7 @@ function ativarBerserk() {
 
 function ativarSlow() {
     if (slowActive) return;
+    sound.playSlow();
     slowActive = true;
     slowTimer = Date.now() + 4000;
     for (let i = 0; i < 20; i++) {
@@ -1124,6 +1574,7 @@ function ativarSlow() {
 }
 
 function ativarScatter() {
+    sound.playScatter();
     const spread = 0.6;
     for (let i = 0; i < 5; i++) {
         const angle = player.angle - spread/2 + (i / 4) * spread;
@@ -1185,7 +1636,7 @@ btnStart.addEventListener('click', () => { initPowers(); startGame(true); });
 btnReset.addEventListener('click', () => { savedWave = 1; startGame(false); });
 
 // ============================================================
-//  LOOP PRINCIPAL - CORRIGIDO PARA TIROS DIAGONAIS
+//  LOOP PRINCIPAL - CORRIGIDO PARA TIROS DIAGONAIS COM SONS
 // ============================================================
 function update() {
     if (gameOver || menuActive) return;
@@ -1303,6 +1754,7 @@ function update() {
                 const pressed = gp.buttons[i] ? gp.buttons[i].pressed : false;
                 if (i === 5 && pressed && !player.isReloading) {
                     if (now - player.lastShot > player.cadence) {
+                        sound.playShoot();
                         const damage = berserkActive ? 2 : 1;
                         const angle = player.angle;
                         playerBullets.push({
@@ -1344,6 +1796,7 @@ function update() {
     // ============================================================
     if (keys['Space'] && !player.isReloading && !gamepadConnected) {
         if (now - player.lastShot > player.cadence) {
+            sound.playShoot();
             const damage = berserkActive ? 2 : 1;
             const angle = player.angle;
             playerBullets.push({
@@ -1506,8 +1959,10 @@ function update() {
             } else {
                 enemyBullets.splice(i, 1);
                 player.health--;
+                sound.playDamage();
                 updateHealthUI();
                 if (player.health <= 0) { 
+                    sound.playGameOver();
                     gameOver = true; 
                     savedWave = wave;
                     setTimeout(showMenu, 2000); 
@@ -1634,6 +2089,7 @@ function update() {
                     enemies.splice(i, 1);
                     if (Math.random() < 0.3) {
                         coins += 5 + Math.floor(Math.random() * 10);
+                        sound.playCoin();
                         updateCoinsDisplay();
                     }
                     if (player.health < player.maxHealth) { player.health++; updateHealthUI(); }
@@ -1697,6 +2153,7 @@ function update() {
         }
         updatePowerUI();
 
+        sound.playWaveComplete();
         coins += 10 + wave;
         updateCoinsDisplay();
         wave++;
