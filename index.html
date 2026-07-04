@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Nova Strike Arena</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="menu-overlay" id="menuOverlay">
+        <div class="menu-box">
+            <h1>NOVA STRIKE ARENA</h1>
+            
+            <div class="coins-display" id="coinsDisplay">🪙 Moedas: 0</div>
+
+            <div class="menu-tabs">
+                <button class="active" data-tab="nave">🚀 Nave</button>
+                <button data-tab="poderes">⚡ Poderes</button>
+            </div>
+
+            <div id="tabNave">
+                <div class="ship-selection" id="shipSelection">
+                    <div class="ship-card" data-ship="speed">
+                        <span class="ship-icon">⚡</span>
+                        <div class="ship-name">Interceptor</div>
+                        <div class="ship-stats">
+                            <span class="stat-high">⚡: Alta</span><br>
+                            <span class="stat-low">❤️ : Baixa</span><br>
+                            <span class="stat-low">🔫 : Baixo</span>
+                        </div>
+                    </div>
+                    <div class="ship-card selected" data-ship="balanced">
+                        <span class="ship-icon">⚖️</span>
+                        <div class="ship-name">Strike</div>
+                        <div class="ship-stats">
+                            <span class="stat-mid">⚡ : Média</span><br>
+                            <span class="stat-mid">❤️ : Média</span><br>
+                            <span class="stat-mid">🔫 : Média</span>
+                        </div>
+                    </div>
+                    <div class="ship-card" data-ship="tank">
+                        <span class="ship-icon">🛡️</span>
+                        <div class="ship-name">Titan</div>
+                        <div class="ship-stats">
+                            <span class="stat-low">⚡ : Baixa</span><br>
+                            <span class="stat-high">❤️: Alta</span><br>
+                            <span class="stat-low">🔫 : Baixo</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tabPoderes" style="display:none;">
+                <div class="selected-powers-info" id="selectedPowersInfo">Poderes selecionados: 0/3</div>
+                <div class="powers-grid" id="powersGrid"></div>
+            </div>
+
+            <div class="current-wave-info" id="currentWaveInfo">🌊 Começando da Onda: 1</div>
+
+            <div class="buttons">
+                <button class="btn-start" id="btnStart">▶ Iniciar</button>
+                <button class="btn-reset" id="btnReset">⟳ Reiniciar</button>
+            </div>
+            
+        </div>
+    </div>
+
+    <div class="hud-container" id="hudContainer" style="display: none;">
+        <div class="hud-left">
+            <div>Pontos: <span id="scoreVal">0</span></div>
+            <div id="waveText" class="wave-indicator">ONDA: 1</div>
+            <div class="health-container" id="healthContainer"></div>
+        </div>
+        
+        <div class="hud-right">
+            <div id="ammoText" style="color: #00ffff; font-size: 1.2rem;">MUNIÇÃO: 15 / 15</div>
+            <div id="reloadBarBg" class="reload-bar-bg">
+                <div id="reloadBarFill" class="reload-bar-fill"></div>
+            </div>
+            <div class="power-status" id="powerStatus"></div>
+        </div>
+    </div>
+
+    <div class="instrucoes" id="instrucoes" style="display: none;">
+        <span class="highlight">Setas/Direcional:</span> Mover | <span class="highlight">R1:</span> Atirar | <span class="power-key">1:</span> Poder 1 | <span class="power-key">2:</span> Poder 2 | <span class="power-key">3:</span> Poder 3 | <span class="power-key">∆:</span> Menu
+    </div>
+
+    <div class="ps3-hint">🎮 PS3: direcional · R1 tiro · 1 2 3 poderes · ∆ menu</div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,571 @@
+* {
+    box-sizing: border-box;
+}
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #020208;
+    color: #fff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+    user-select: none;
+    touch-action: none;
+}
+canvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    background: #02020a;
+    touch-action: none;
+}
+.hud-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    pointer-events: none;
+}
+.hud-left {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+.wave-indicator { color: #ffaa00; font-size: 1rem; }
+.health-container { display: flex; gap: 6px; margin-top: 5px; }
+.health-bar {
+    width: 25px;
+    height: 10px;
+    background: #440011;
+    border: 1px solid #ff0055;
+    border-radius: 2px;
+    transition: background 0.2s;
+}
+.health-bar.active { background: #ff0055; box-shadow: 0 0 8px #ff0055; }
+.hud-right { text-align: right; font-weight: bold; }
+.reload-bar-bg {
+    width: 180px;
+    height: 8px;
+    background: #331111;
+    border-radius: 4px;
+    margin-top: 5px;
+    overflow: hidden;
+    display: none;
+}
+.reload-bar-fill { width: 0%; height: 100%; background: #ff3300; }
+.power-status {
+    margin-top: 6px;
+    font-size: 0.8rem;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    color: #aaa;
+    flex-wrap: wrap;
+}
+.power-status span { 
+    padding: 4px 12px; 
+    border-radius: 12px; 
+    background: #111; 
+    border: 2px solid #333;
+    cursor: pointer;
+    font-size: 1.0rem;
+    font-weight: bold;
+}
+.power-status .ready { color: #0f0; border-color: #0f0; }
+.power-status .cooldown { color: #ff8800; border-color: #ff8800; }
+.instrucoes {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.9rem;
+    color: #8a8ab0;
+    text-align: center;
+    pointer-events: none;
+    background: rgba(5, 5, 16, 0.7);
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid #1a1a3a;
+    white-space: nowrap;
+}
+.highlight { color: #00ffff; }
+.danger { color: #ff3300; }
+.power-key { color: #ffaa00; font-weight: bold; }
+@media (max-width: 800px) {
+    .instrucoes { font-size: 0.7rem; padding: 4px 10px; white-space: normal; }
+    .power-status { font-size: 0.6rem; gap: 4px; }
+    .power-status span { padding: 2px 6px; font-size: 0.8rem; }
+}
+
+.menu-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(2, 2, 8, 0.92);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    pointer-events: all;
+    overflow-y: auto;
+    padding: 20px;
+}
+.menu-box {
+    background: linear-gradient(145deg, #0a0a1a, #050510);
+    border: 2px solid #1a1a4a;
+    border-radius: 24px;
+    padding: 25px 35px;
+    max-width: 850px;
+    width: 95%;
+    text-align: center;
+    box-shadow: 0 0 60px rgba(0, 150, 255, 0.1);
+    max-height: 95vh;
+    overflow-y: auto;
+}
+.menu-box::-webkit-scrollbar { width: 5px; }
+.menu-box::-webkit-scrollbar-track { background: #111; border-radius: 10px; }
+.menu-box::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+
+.menu-box h1 {
+    font-size: 2.5rem;
+    color: #00ffff;
+    text-shadow: 0 0 40px rgba(0, 255, 255, 0.3);
+    margin: 0 0 5px 0;
+    letter-spacing: 4px;
+    background: linear-gradient(135deg, #00ffff, #0066ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.menu-box .subtitle {
+    color: #8a8ab0;
+    font-size: 0.85rem;
+    margin-bottom: 15px;
+    letter-spacing: 2px;
+}
+
+.coins-display {
+    color: #ffd700;
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+    text-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+    background: rgba(255, 215, 0, 0.05);
+    padding: 8px 20px;
+    border-radius: 30px;
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    display: inline-block;
+}
+
+.menu-tabs {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+.menu-tabs button {
+    padding: 10px 25px;
+    border: 2px solid #333;
+    border-radius: 30px;
+    background: rgba(17, 17, 17, 0.8);
+    color: #aaa;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: bold;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+    backdrop-filter: blur(10px);
+}
+.menu-tabs button:hover {
+    border-color: #666;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+}
+.menu-tabs button.active {
+    border-color: #00ffff;
+    color: #00ffff;
+    background: rgba(0, 255, 255, 0.1);
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+/* ============================================================
+   SELEÇÃO DE NAVES - MELHORADA
+   ============================================================ */
+.ship-selection {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin: 15px 0 20px 0;
+    flex-wrap: wrap;
+}
+.ship-card {
+    background: linear-gradient(145deg, rgba(10, 10, 30, 0.9), rgba(5, 5, 20, 0.95));
+    border: 2px solid #333;
+    border-radius: 20px;
+    padding: 18px 15px;
+    width: 140px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.ship-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.4s;
+}
+.ship-card:hover::before {
+    opacity: 1;
+}
+.ship-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    border-color: #666;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+}
+.ship-card.selected {
+    border-color: #00ffff;
+    box-shadow: 0 0 40px rgba(0, 255, 255, 0.2), inset 0 0 30px rgba(0, 255, 255, 0.05);
+    background: rgba(0, 255, 255, 0.05);
+    transform: translateY(-8px) scale(1.03);
+}
+.ship-card.selected::after {
+    content: '✓ SELECIONADO';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #00ffff;
+    color: #000;
+    font-size: 0.5rem;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 10px;
+    letter-spacing: 0.5px;
+}
+.ship-card .ship-icon {
+    font-size: 2.8rem;
+    display: block;
+    margin-bottom: 8px;
+    transition: transform 0.3s;
+}
+.ship-card:hover .ship-icon {
+    transform: scale(1.1) rotate(-5deg);
+}
+.ship-card .ship-name {
+    font-weight: bold;
+    font-size: 1rem;
+    color: #fff;
+    margin-bottom: 5px;
+    letter-spacing: 0.5px;
+}
+.ship-card .ship-stats {
+    font-size: 0.65rem;
+    color: #8a8ab0;
+    margin-top: 5px;
+    line-height: 1.6;
+}
+.ship-card .ship-stats .stat-high { color: #00ff88; }
+.ship-card .ship-stats .stat-mid { color: #ffaa00; }
+.ship-card .ship-stats .stat-low { color: #ff4444; }
+/* Barras de estatísticas */
+.ship-card .stat-bar {
+    width: 100%;
+    height: 4px;
+    background: #1a1a2a;
+    border-radius: 2px;
+    margin: 3px 0;
+    overflow: hidden;
+}
+.ship-card .stat-bar .bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.5s;
+}
+.ship-card .stat-bar .bar-fill.high { background: #00ff88; }
+.ship-card .stat-bar .bar-fill.mid { background: #ffaa00; }
+.ship-card .stat-bar .bar-fill.low { background: #ff4444; }
+
+/* ============================================================
+   SELEÇÃO DE PODERES - MELHORADA
+   ============================================================ */
+.powers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+    gap: 12px;
+    margin: 15px 0;
+    max-height: 350px;
+    overflow-y: auto;
+    padding: 8px;
+}
+.powers-grid::-webkit-scrollbar { width: 4px; }
+.powers-grid::-webkit-scrollbar-track { background: #111; border-radius: 10px; }
+.powers-grid::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
+
+.power-card {
+    background: linear-gradient(145deg, rgba(10, 10, 30, 0.85), rgba(5, 5, 20, 0.9));
+    border: 2px solid #2a2a3a;
+    border-radius: 16px;
+    padding: 12px 10px;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+}
+.power-card:hover {
+    transform: translateY(-4px);
+    border-color: #555;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+}
+.power-card.owned {
+    border-color: #00ff88;
+    background: rgba(0, 255, 136, 0.05);
+}
+.power-card.owned:hover {
+    box-shadow: 0 8px 30px rgba(0, 255, 136, 0.1);
+}
+.power-card.selected-power {
+    border-color: #00ffff;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.15), inset 0 0 20px rgba(0, 255, 255, 0.05);
+    background: rgba(0, 255, 255, 0.08);
+    transform: translateY(-4px) scale(1.02);
+}
+.power-card .power-icon {
+    font-size: 2.2rem;
+    display: block;
+    margin-bottom: 5px;
+    transition: transform 0.3s;
+}
+.power-card:hover .power-icon {
+    transform: scale(1.1);
+}
+.power-card .power-name {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 2px;
+}
+.power-card .power-desc {
+    font-size: 0.6rem;
+    color: #8a8ab0;
+    margin-top: 2px;
+    line-height: 1.3;
+}
+.power-card .power-cost {
+    font-size: 0.65rem;
+    color: #ffd700;
+    margin-top: 4px;
+    font-weight: bold;
+}
+.power-card .power-cooldown {
+    font-size: 0.6rem;
+    color: #ff8800;
+    margin-top: 2px;
+}
+.power-card .power-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #00ff88;
+    color: #000;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    font-size: 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    box-shadow: 0 2px 10px rgba(0, 255, 136, 0.3);
+}
+.power-card .power-badge.selected-badge {
+    background: #00ffff;
+    box-shadow: 0 2px 10px rgba(0, 255, 255, 0.3);
+}
+.power-card .buy-btn {
+    margin-top: 6px;
+    padding: 4px 14px;
+    border: none;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #ffd700, #f5a623);
+    color: #000;
+    font-weight: bold;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.power-card .buy-btn:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+}
+.power-card .buy-btn:disabled {
+    background: #444;
+    color: #888;
+    cursor: not-allowed;
+    transform: none;
+}
+.power-card .select-btn {
+    margin-top: 6px;
+    padding: 4px 14px;
+    border: none;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #00ccff, #0066ff);
+    color: #fff;
+    font-weight: bold;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.power-card .select-btn:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 4px 20px rgba(0, 150, 255, 0.3);
+}
+.power-card .select-btn:disabled {
+    background: #444;
+    color: #888;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.selected-powers-info {
+    color: #00ffff;
+    font-size: 0.85rem;
+    margin: 8px 0 12px 0;
+    padding: 8px;
+    background: rgba(0, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(0, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.selected-powers-info .slot {
+    display: inline-block;
+    padding: 3px 12px;
+    background: rgba(0, 255, 255, 0.1);
+    border-radius: 15px;
+    border: 1px solid rgba(0, 255, 255, 0.2);
+    font-size: 0.75rem;
+}
+.selected-powers-info .slot.empty {
+    color: #444;
+    border-color: #222;
+}
+
+.menu-box .buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+.menu-box button {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+}
+.menu-box .btn-start {
+    background: linear-gradient(135deg, #00ccff, #0066ff);
+    color: #fff;
+    box-shadow: 0 0 30px rgba(0, 150, 255, 0.3);
+}
+.menu-box .btn-start:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 40px rgba(0, 150, 255, 0.4);
+}
+.menu-box .btn-start:active {
+    transform: scale(0.95);
+}
+.menu-box .btn-start:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+.menu-box .btn-reset {
+    background: linear-gradient(135deg, #ff4400, #cc2200);
+    color: #fff;
+    box-shadow: 0 0 30px rgba(255, 50, 0, 0.3);
+}
+.menu-box .btn-reset:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 40px rgba(255, 50, 0, 0.4);
+}
+.menu-box .btn-reset:active {
+    transform: scale(0.95);
+}
+
+.menu-box .info-text {
+    color: #666;
+    font-size: 0.7rem;
+    margin-top: 15px;
+    border-top: 1px solid #1a1a3a;
+    padding-top: 12px;
+}
+.menu-box .current-wave-info {
+    color: #ffaa00;
+    font-size: 0.9rem;
+    margin: 8px 0 12px 0;
+    padding: 8px 16px;
+    background: rgba(255, 170, 0, 0.08);
+    border-radius: 30px;
+    border: 1px solid rgba(255, 170, 0, 0.15);
+    display: inline-block;
+}
+
+@media (max-width: 600px) {
+    .menu-box { padding: 15px; }
+    .menu-box h1 { font-size: 1.8rem; }
+    .ship-card { width: 100px; padding: 12px 8px; }
+    .ship-card .ship-icon { font-size: 2rem; }
+    .powers-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+    .menu-box button { padding: 8px 18px; font-size: 0.8rem; }
+    .power-card .power-icon { font-size: 1.8rem; }
+}
+
+.ps3-hint {
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.6);
+    padding: 6px 18px;
+    border-radius: 30px;
+    border: 1px solid #2a2a4a;
+    color: #88aaff;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    pointer-events: none;
+    opacity: 0.5;
+    white-space: nowrap;
+}
+@media (max-width: 600px) { .ps3-hint { display: none; } }
