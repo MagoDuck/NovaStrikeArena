@@ -255,7 +255,7 @@ Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalh
 ## 📧 Contato
 
 - **Desenvolvedor**: João Gabriel
-- **Email**: joaogabrielcoelho1000@gmai.com
+- **Email**: joaogabrielcoelho1000@gmail.com
 - **GitHub**: [João Gabriel](https://github.com/magoduck)
 
 ---
