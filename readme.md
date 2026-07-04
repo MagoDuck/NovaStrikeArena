@@ -7,20 +7,6 @@ Um jogo de tiro espacial estilo arcade com sistema de poderes, moedas e loja, de
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat&logo=css3&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)
 
-## 📋 Índice
-
-- [Sobre o Jogo](#sobre-o-jogo)
-- [Controles](#controles)
-- [Mecânicas](#mecânicas)
-- [Sistema de Poderes](#sistema-de-poderes)
-- [Naves](#naves)
-- [Inimigos](#inimigos)
-- [Moedas e Loja](#moedas-e-loja)
-- [Instalação](#instalação)
-- [Como Jogar](#como-jogar)
-- [Personalização](#personalização)
-- [Tecnologias](#tecnologias)
-
 ## 🎮 Sobre o Jogo
 
 Nova Strike Arena é um jogo de sobrevivência espacial onde você controla uma nave e enfrenta ondas de inimigos cada vez mais desafiadores. O jogo combina ação intensa com um sistema de progressão onde você ganha moedas para comprar e desbloquear novos poderes.
